@@ -74,6 +74,20 @@
     .shop-item p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
     .shop-item button { min-width: 118px; padding: 0 12px; font-size: 11px; }
     .shop-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .menu-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    .menu-actions button { min-width: 150px; }
+    #ability-shop-open { background: #394e75; color: #e8f1ff; }
+    #ability-shop-open:hover { background: #49638f; }
+    #boss-raid-button { display: block; min-width: 310px; margin: 10px auto 0; background: #b83d46; color: #fff0e8; }
+    #boss-raid-button:hover { background: #d34d57; }
+    .skin-swatch { display: inline-block; width: 18px; height: 18px; margin-right: 9px; border: 1px solid #eee8d766; border-radius: 50%; vertical-align: middle; }
+    .skin-swatch.rainbow { background: linear-gradient(135deg, #f44, #ff4, #4f8, #49f, #c4f); }
+    .raid-boss-health { padding: 9px 14px; border: 1px solid #7c343a; border-bottom: 0; background: #271c20; }
+    .raid-boss-health[hidden], .raid-wave[hidden] { display: none; }
+    .raid-boss-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; color: #ffc3bd; font: 700 11px Consolas, "Courier New", monospace; text-transform: uppercase; }
+    .raid-boss-track { height: 10px; overflow: hidden; background: #49343a; }
+    #raid-boss-fill { width: 100%; height: 100%; background: #ed4652; transition: width 100ms linear; }
+    .raid-wave { padding: 8px 14px; border: 1px solid #485044; border-top: 0; background: #202722; color: #ffb4a5; font: 700 11px Consolas, "Courier New", monospace; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; }
     .perk-result { margin-top: 7px !important; color: var(--lime) !important; }
 
     .hud {
@@ -121,9 +135,16 @@
     }
 
     .overlay[hidden] { display: none; }
-    .dialog { max-width: 430px; padding: 28px; border: 1px solid #78805a; background: #202722ed; }
+    .dialog { width: min(560px, 100%); max-height: calc(100% - 24px); overflow-y: auto; padding: 20px; border: 1px solid #78805a; background: #202722ed; }
     .dialog p { color: var(--muted); line-height: 1.55; }
     .dialog h2 { margin: 4px 0 10px; font-size: clamp(26px, 6vw, 42px); }
+    .tutorial { margin: 12px 0; padding: 10px 14px; border: 1px solid #485044; background: #171c19; text-align: left; }
+    .tutorial h3 { margin: 0 0 8px; color: var(--lime); font: 700 12px Consolas, "Courier New", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tutorial ul { margin: 0; padding-left: 20px; color: var(--paper); font-size: 12px; line-height: 1.5; }
+    .tutorial li + li { margin-top: 4px; }
+    .tutorial p { margin: 10px 0 0; font-size: 12px; }
+    .tutorial strong { color: var(--orange); }
+    #tutorial-dismiss { display: block; min-width: 120px; margin: 12px auto 0; }
 
     button {
       min-height: 44px;
@@ -211,20 +232,44 @@
       <div class="metric"><span class="metric-label">Armament</span><span id="weapon-name" class="meter-number">RAYGUN</span><span id="ammo-count" class="meter-number">30</span><div id="ammo-meter" class="ammo-meter" aria-label="10 shots in current magazine"></div></div>
     </section>
 
+    <div id="raid-boss-health" class="raid-boss-health" hidden>
+      <div class="raid-boss-heading"><span id="raid-boss-name">Planetary boss</span><span id="raid-boss-count">1000 / 1000</span></div>
+      <div class="raid-boss-track"><div id="raid-boss-fill"></div></div>
+    </div>
+
     <section class="game-frame" aria-label="Game area">
       <canvas id="game" width="960" height="580" aria-label="Overhead view of the outpost. Move your astronaut to collect fuel cans and return to the rocket."></canvas>
       <div id="overlay" class="overlay">
         <div class="dialog">
-          <p class="eyebrow">Emergency launch protocol</p>
-          <h2 id="overlay-title">The clock is running.</h2>
-          <p id="overlay-copy">The outpost is dark. Hold right-click to reveal fuel cans, then bring 15 to the rocket. Aliens are closing in: shoot the small ones twice and the larger one five times before they tear the rocket apart.</p>
-          <button id="start-button" type="button">Start mission</button>
+          <p class="eyebrow">Last Light</p>
+          <h2 id="overlay-title">Ready?</h2>
+          <p id="overlay-copy">Read the field guide, then launch a fuel run or enter a boss raid.</p>
+          <section class="tutorial" aria-labelledby="tutorial-title">
+            <h3 id="tutorial-title">Field guide</h3>
+            <ul>
+              <li><strong>Move:</strong> WASD or touch arrows; hold Shift to sprint. Stamina regenerates when you slow down.</li>
+              <li><strong>Find fuel:</strong> hold right-click or touch Flashlight to reveal cans; the battery recharges when off.</li>
+              <li><strong>Fight:</strong> aim and hold left-click or touch Fire; press R to reload and collect ammo boxes.</li>
+              <li><strong>Mission:</strong> collect 15 cans, load them at the rocket, then press E to launch. Time or rocket health reaching zero means you lose.</li>
+              <li><strong>Interact:</strong> press E at cannons to return or at an unlocked ladder to climb. Q uses your ability; Time Stop uses E away from interactable spots.</li>
+              <li><strong>Progress:</strong> successful runs earn moon rocks and trophies for the shops. In a boss raid, survive 10 waves and defeat the boss.</li>
+            </ul>
+            <button id="tutorial-dismiss" type="button">OK</button>
+          </section>
+          <div class="menu-actions">
+            <button id="start-button" type="button">Play</button>
+            <button id="ability-shop-open" class="secondary" type="button">Ability shop</button>
+            <button id="skin-shop-open" class="secondary" type="button">Skin shop</button>
+          </div>
+          <button id="boss-raid-button" type="button">Boss raid</button>
         </div>
       </div>
     </section>
 
+    <div id="raid-wave" class="raid-wave" hidden>Wave 1 / 15</div>
+
     <div class="lower-bar">
-      <div class="instructions"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>SHIFT</kbd> sprint · hold right-click flashlight<br>Left-click fire · <kbd>R</kbd> reload · <kbd>E</kbd> load, return, or climb unlocked ladder</div>
+      <div class="instructions"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>SHIFT</kbd> sprint · hold right-click flashlight<br>Left-click fire · <kbd>R</kbd> reload · <kbd>Q</kbd> ability · <kbd>E</kbd> interact / Time Stop <span id="ability-status"></span></div>
       <button id="load-button" type="button" disabled>Load fuel</button>
     </div>
 
@@ -256,13 +301,14 @@
         <button id="touch-sprint" type="button" data-hold>Sprint</button>
         <button id="touch-load" type="button" disabled>Load fuel</button>
         <button id="touch-reload" type="button">Reload</button>
+        <button id="touch-ability" type="button">Ability</button>
       </div>
     </div>
 
     <div id="shop-overlay" class="shop-overlay" hidden>
       <section class="shop-window" role="dialog" aria-modal="true" aria-labelledby="shop-title">
         <header class="shop-header">
-          <div><h2 id="shop-title">Outpost armory</h2><p>Weapons persist between runs</p></div>
+          <div><h2 id="shop-title">Outpost armory</h2><p id="shop-description">Weapons persist between runs</p></div>
           <button id="shop-close" type="button" aria-label="Close shop">Close</button>
         </header>
         <div id="shop-balance" class="shop-balance">0 MOON ROCKS</div>
@@ -291,35 +337,104 @@
       const moonRocksLabel = document.querySelector("#moon-rocks");
       const shopOverlay = document.querySelector("#shop-overlay");
       const shopCloseButton = document.querySelector("#shop-close");
+      const shopTitle = document.querySelector("#shop-title");
+      const shopDescription = document.querySelector("#shop-description");
       const shopBalance = document.querySelector("#shop-balance");
       const shopList = document.querySelector("#shop-list");
+      const skinShopButton = document.querySelector("#skin-shop-open");
+      const abilityShopButton = document.querySelector("#ability-shop-open");
+      const tower = document.querySelector(".tower");
       const floorMarkers = [...document.querySelectorAll("[data-floor]")];
       const statusText = document.querySelector("#status-text");
       const overlay = document.querySelector("#overlay");
+      const tutorial = document.querySelector("#tutorial-title").parentElement;
+      const tutorialDismissButton = document.querySelector("#tutorial-dismiss");
       const overlayTitle = document.querySelector("#overlay-title");
       const overlayCopy = document.querySelector("#overlay-copy");
       const startButton = document.querySelector("#start-button");
+      const bossRaidButton = document.querySelector("#boss-raid-button");
+      const raidBossHealth = document.querySelector("#raid-boss-health");
+      const raidBossName = document.querySelector("#raid-boss-name");
+      const raidBossCount = document.querySelector("#raid-boss-count");
+      const raidBossFill = document.querySelector("#raid-boss-fill");
+      const raidWaveDisplay = document.querySelector("#raid-wave");
       const loadButton = document.querySelector("#load-button");
       const touchLoad = document.querySelector("#touch-load");
       const touchFlashlight = document.querySelector("#touch-flashlight");
       const touchShoot = document.querySelector("#touch-shoot");
       const touchSprint = document.querySelector("#touch-sprint");
       const touchReload = document.querySelector("#touch-reload");
+      const touchAbility = document.querySelector("#touch-ability");
+      const abilityStatus = document.querySelector("#ability-status");
       const width = canvas.width;
       const height = canvas.height;
       const darknessCanvas = document.createElement("canvas");
       darknessCanvas.width = width;
       darknessCanvas.height = height;
       const darknessContext = darknessCanvas.getContext("2d");
-      const targetFuel = 15;
+      let targetFuel = 15;
       const ammoPipCount = 10;
       let maxStamina = 5;
       let rocketHealthCap = 35;
-      const flashlightBatteryCap = 20;
+      let flashlightBatteryCap = 20;
       let flashlightDrainMultiplier = 1;
       let sprintMultiplier = 1;
       let ammoBoxMultiplier = 1;
       let fuelCanMultiplier = 1;
+
+      function syncGameFromPrd(prdText) {
+        if (!prdText) return;
+
+        const normalized = prdText.replace(/\r/g, "");
+        const lower = normalized.toLowerCase();
+
+        const targetFuelMatch = lower.match(/(?:collect|need to collect|collecting)\s+(\d+)/i);
+        if (targetFuelMatch) {
+          targetFuel = Number(targetFuelMatch[1]);
+        }
+
+        const rocketMatch = lower.match(/rocket.*?(\d+)\s+hits?\s+before\s+it\s+breaks|(?:\b)(\d+)\s+hits?\s+before\s+it\s+breaks/i);
+        if (rocketMatch) {
+          rocketHealthCap = Number(rocketMatch[1] || rocketMatch[2]);
+        }
+
+        const staminaMatch = lower.match(/stamina.*?(\d+)\s+seconds?\s+before.*?runs\s+out|(?:\b)(\d+)\s+seconds?\s+before\s+it\s+runs\s+out/i);
+        if (staminaMatch) {
+          maxStamina = Number(staminaMatch[1] || staminaMatch[2]);
+        }
+
+        const flashlightMatch = lower.match(/flashlight.*?(\d+)\s+seconds?\s+if\s+you\s+keep\s+it\s+on|flashlight.*?(\d+)\s+seconds?/i);
+        if (flashlightMatch) {
+          flashlightBatteryCap = Number(flashlightMatch[1] || flashlightMatch[2]);
+        }
+
+        if (typeof updateHud === "function") {
+          updateHud();
+        }
+      }
+
+      async function loadMissionData() {
+        const candidates = [
+          "./prd.md",
+          "prd.md",
+          "./my arcade/prd.md",
+          "my arcade/prd.md",
+          "../prd.md"
+        ];
+
+        for (const candidate of candidates) {
+          try {
+            const response = await fetch(candidate, { cache: "no-store" });
+            if (!response.ok) continue;
+            const prdText = await response.text();
+            syncGameFromPrd(prdText);
+            return;
+          } catch (error) {
+            // Ignore fetch failures; the game keeps its default configuration.
+          }
+        }
+      }
+
       const gunDefinitions = [
         { id: "raygun", name: "Raygun", price: 0, clipSize: 10, totalAmmo: 30, cooldown: 0.26, reloadDuration: 0.75, speed: 560, radius: 5, aoe: 0, color: "#ffb45e", hitsSmall: 2, hitsBig: 5, description: "Your starter sidearm. Two hits take down a small alien." },
         { id: "dual-raygun", name: "Dual Raygun", price: 1000, clipSize: 20, totalAmmo: 60, cooldown: 0.19, reloadDuration: 0.95, speed: 580, radius: 5, aoe: 0, color: "#ed9bf4", hitsSmall: 2, hitsBig: 5, description: "Twin sidearms with double the magazine and reserve ammo." },
@@ -331,17 +446,36 @@
       const perkDefinitions = [
         { id: "sprint", name: "Overclocked Sprint", chance: 50, description: "Sprint faster." },
         { id: "ammo", name: "Field Scavenger", chance: 25, description: "Ammo boxes yield more reserve ammo." },
-        { id: "survival", name: "Survival Kit", chance: 15, description: "More flashlight battery, stamina, and rocket health." },
+        { id: "survival", name: "Survival Kit", chance: 15, description: "Flashlight lasts 25% longer; gain stamina and rocket health." },
         { id: "reinforced", name: "Fortress Protocol", chance: 9, description: "More rocket health, stamina, ammo, and fuel-can spawns." },
-        { id: "triple", name: "Triple Core", chance: 1, description: "Triples perk bonuses and weapon damage." }
+        { id: "triple", name: "Triple Core", chance: 1, description: "Triples core stats and weapon damage." }
+      ];
+      const abilityDefinitions = [
+        { id: "flaming", name: "Flaming Bullets", price: 2, description: "For 10 seconds, shots deal 35% more damage and ignite aliens for damage over time." },
+        { id: "time-stop", name: "Time Stop", price: 5, description: "Stop all alien movement and attacks for 15 seconds." },
+        { id: "freezing", name: "Freezing Bullets", price: 3, description: "For 10 seconds, shots freeze hit aliens in ice for 2 seconds." }
       ];
       const planetDefinitions = [
         { id: "mars", name: "Mars", trophies: 5, moonRockMultiplier: 2, trophyMultiplier: 3, colors: ["#9b573d", "#6e392f", "#d28b57"] },
         { id: "saturn", name: "Saturn", trophies: 15, moonRockMultiplier: 4, trophyMultiplier: 8, colors: ["#b89a69", "#766346", "#e4cb91"] }
       ];
+      const skinDefinitions = [
+        { id: "white", name: "White Astronaut", price: 0, color: "#e9e4d3" },
+        { id: "red", name: "Red Astronaut", price: 100, color: "#e85b52" },
+        { id: "orange", name: "Orange Astronaut", price: 350, color: "#ef8a3a" },
+        { id: "yellow", name: "Yellow Astronaut", price: 450, color: "#e8d44c" },
+        { id: "green", name: "Green Astronaut", price: 550, color: "#54a866" },
+        { id: "blue", name: "Blue Astronaut", price: 600, color: "#477ad1" },
+        { id: "lightblue", name: "Light Blue Astronaut", price: 650, color: "#69c6e8" },
+        { id: "turquoise", name: "Turquoise Astronaut", price: 700, color: "#36b8a5" },
+        { id: "purple", name: "Purple Astronaut", price: 750, color: "#9460c4" },
+        { id: "rainbow", name: "Rainbow Astronaut", price: 1500, color: "rainbow" }
+      ];
       const gunsById = Object.fromEntries(gunDefinitions.map((gun) => [gun.id, gun]));
       const perksById = Object.fromEntries(perkDefinitions.map((perk) => [perk.id, perk]));
+      const abilitiesById = Object.fromEntries(abilityDefinitions.map((ability) => [ability.id, ability]));
       const planetsById = Object.fromEntries(planetDefinitions.map((planet) => [planet.id, planet]));
+      const skinsById = Object.fromEntries(skinDefinitions.map((skin) => [skin.id, skin]));
       const rocket = { x: 790, y: 292, radius: 82 };
       const initialCans = [
         { x: 218, y: 120 }, { x: 420, y: 95 }, { x: 620, y: 160 },
@@ -384,6 +518,11 @@
       let loaded = 0;
       let timeLeft = 90;
       let mode = "ready";
+      let gameMode = "mission";
+      let raidWave = 0;
+      let raidSpawnRemaining = 0;
+      let raidSpawnCooldown = 0;
+      let raidBossSpawned = false;
       let previousTime = 0;
       let animationId = 0;
       let elapsed = 0;
@@ -411,11 +550,19 @@
       let moonRocks = 0;
       let trophies = 0;
       let ownedGuns = ["raygun"];
+      let ownedSkins = ["white"];
+      let equippedSkin = "white";
+      let ownedAbilities = [];
+      let equippedAbility = "";
+      let abilityDurationRemaining = 0;
+      let abilityCooldownRemaining = 0;
+      let timeStopRemaining = 0;
       let ownedPerks = [];
       let perkNotice = "No perk rolled yet.";
       let equippedGun = "raygun";
       let activePlanet = "earth";
       let shopOpen = false;
+      let shopMode = "weapons";
       let floor = 1;
       let ladderUnlocked = false;
       let rocketReady = false;
@@ -427,14 +574,24 @@
         if (Array.isArray(savedGuns)) {
           ownedGuns = [...new Set(["raygun", ...savedGuns.filter((id) => gunsById[id])])];
         }
+        const savedSkins = JSON.parse(localStorage.getItem("lastlight-owned-skins") || "[]");
+        if (Array.isArray(savedSkins)) ownedSkins = [...new Set(["white", ...savedSkins.filter((id) => skinsById[id])])];
+        const savedSkin = localStorage.getItem("lastlight-equipped-skin");
+        if (ownedSkins.includes(savedSkin)) equippedSkin = savedSkin;
+        const savedAbilities = JSON.parse(localStorage.getItem("lastlight-owned-abilities") || "[]");
+        if (Array.isArray(savedAbilities)) ownedAbilities = [...new Set(savedAbilities.filter((id) => abilitiesById[id]))];
+        const savedAbility = localStorage.getItem("lastlight-equipped-ability");
+        if (ownedAbilities.includes(savedAbility)) equippedAbility = savedAbility;
         const savedPerks = JSON.parse(localStorage.getItem("lastlight-owned-perks") || "[]");
         const legacyPerks = { battery: "survival", stamina: "survival", armor: "reinforced" };
-        if (Array.isArray(savedPerks)) ownedPerks = savedPerks.map((id) => perksById[id] ? id : legacyPerks[id]).filter(Boolean);
+        if (Array.isArray(savedPerks)) ownedPerks = savedPerks.map((id) => perksById[id] ? id : legacyPerks[id]).filter(Boolean).slice(-1);
+        perkNotice = ownedPerks.length ? `Active perk: ${perksById[ownedPerks[0]].name}` : "No active perk.";
         const savedEquipped = localStorage.getItem("lastlight-equipped-gun");
         if (ownedGuns.includes(savedEquipped)) equippedGun = savedEquipped;
         floor = Math.min(5, Math.max(1, Number(localStorage.getItem("lastlight-floor")) || 1));
         const savedPlanet = localStorage.getItem("lastlight-active-planet");
         if (savedPlanet === "earth" || planetsById[savedPlanet]) activePlanet = savedPlanet;
+        tutorial.hidden = localStorage.getItem("lastlight-tutorial-dismissed") === "true";
       } catch { }
 
       ammoByGun = Object.fromEntries(gunDefinitions.map((gun) => [gun.id, {
@@ -464,6 +621,10 @@
           localStorage.setItem("lastlight-moon-rocks", String(moonRocks));
           localStorage.setItem("lastlight-trophies", String(trophies));
           localStorage.setItem("lastlight-owned-guns", JSON.stringify(ownedGuns));
+          localStorage.setItem("lastlight-owned-skins", JSON.stringify(ownedSkins));
+          localStorage.setItem("lastlight-equipped-skin", equippedSkin);
+          localStorage.setItem("lastlight-owned-abilities", JSON.stringify(ownedAbilities));
+          localStorage.setItem("lastlight-equipped-ability", equippedAbility);
           localStorage.setItem("lastlight-owned-perks", JSON.stringify(ownedPerks));
           localStorage.setItem("lastlight-equipped-gun", equippedGun);
           localStorage.setItem("lastlight-floor", String(floor));
@@ -471,15 +632,21 @@
         } catch { }
       }
 
+      function moonRockRewardMultiplier() {
+        return (planetsById[activePlanet]?.moonRockMultiplier || 1) * (equippedSkin === "rainbow" ? 1.5 : 1);
+      }
+
       function refreshPerkStats() {
-        const count = (id) => ownedPerks.filter((perkId) => perkId === id).length;
-        const triple = count("triple") ? 3 : 1;
-        flashlightDrainMultiplier = 1 / (1 + count("survival") * 0.25 * triple);
-        maxStamina = (5 + count("survival") + count("reinforced") * 2) * triple;
-        rocketHealthCap = (35 + count("survival") * 10 + count("reinforced") * 20) * triple;
-        sprintMultiplier = (1 + count("sprint") * 0.25) * triple;
-        ammoBoxMultiplier = (1 + count("ammo") * 0.5 + count("reinforced")) * triple;
-        fuelCanMultiplier = (1 + count("reinforced") * 0.25) * triple;
+        const has = (id) => ownedPerks.includes(id);
+        const triple = has("triple") ? 3 : 1;
+        flashlightDrainMultiplier = 1 / ((has("survival") ? 1.25 : 1) * triple);
+        maxStamina = (5 + Number(has("survival")) + Number(has("reinforced")) * 2) * triple;
+        rocketHealthCap = (35 + Number(has("survival")) * 10 + Number(has("reinforced")) * 20) * triple;
+        sprintMultiplier = (1 + Number(has("sprint")) * 0.25) * triple;
+        ammoBoxMultiplier = (1 + Number(has("ammo")) * 0.5 + Number(has("reinforced"))) * triple;
+        fuelCanMultiplier = (1 + Number(has("reinforced")) * 0.25) * triple;
+        stamina = Math.min(stamina, maxStamina);
+        rocketIntegrity = Math.min(rocketIntegrity, rocketHealthCap);
       }
 
       function rollPerk(currency) {
@@ -493,15 +660,115 @@
           threshold += item.chance;
           return roll < threshold;
         });
-        ownedPerks.push(perk.id);
-        perkNotice = `Unlocked ${perk.name} (${perk.chance}% chance)`;
+        ownedPerks = [perk.id];
+        perkNotice = `Active perk: ${perk.name} (${perk.chance}% chance). Previous perk replaced.`;
         refreshPerkStats();
         saveProgress();
         updateHud();
         renderShop();
       }
 
+      function renderSkinShop() {
+        shopTitle.textContent = "Astronaut skin shop";
+        shopDescription.textContent = "Choose one owned skin to wear on your next run";
+        moonRocksLabel.textContent = String(moonRocks);
+        shopBalance.textContent = `${moonRocks} MOON ROCKS · EQUIPPED: ${skinsById[equippedSkin].name.toUpperCase()}`;
+        shopList.replaceChildren();
+        for (const skin of skinDefinitions) {
+          const item = document.createElement("article");
+          item.className = "shop-item";
+          const details = document.createElement("div");
+          const title = document.createElement("h3");
+          const swatch = document.createElement("span");
+          swatch.className = `skin-swatch${skin.id === "rainbow" ? " rainbow" : ""}`;
+          if (skin.id !== "rainbow") swatch.style.backgroundColor = skin.color;
+          swatch.setAttribute("aria-hidden", "true");
+          title.append(swatch, document.createTextNode(skin.name));
+          const description = document.createElement("p");
+          description.textContent = skin.id === "rainbow"
+            ? "Earns 50% more moon rocks from successful runs."
+            : skin.price === 0 ? "Your original spacesuit." : `Cost: ${skin.price} moon rocks.`;
+          details.append(title, description);
+          const actions = document.createElement("div");
+          actions.className = "shop-actions";
+          const owned = ownedSkins.includes(skin.id);
+          const buyButton = document.createElement("button");
+          buyButton.textContent = skin.price === 0 ? "Starter skin" : owned ? "Owned" : `Buy · ${skin.price}`;
+          buyButton.disabled = owned || moonRocks < skin.price;
+          buyButton.addEventListener("click", () => {
+            if (ownedSkins.includes(skin.id) || moonRocks < skin.price) return;
+            moonRocks -= skin.price;
+            ownedSkins.push(skin.id);
+            saveProgress();
+            updateHud();
+            renderSkinShop();
+          });
+          const equipButton = document.createElement("button");
+          equipButton.className = "secondary";
+          equipButton.textContent = equippedSkin === skin.id ? "Equipped" : "Equip";
+          equipButton.disabled = !owned || equippedSkin === skin.id;
+          equipButton.addEventListener("click", () => {
+            if (!ownedSkins.includes(skin.id)) return;
+            equippedSkin = skin.id;
+            saveProgress();
+            renderSkinShop();
+          });
+          actions.append(buyButton, equipButton);
+          item.append(details, actions);
+          shopList.append(item);
+        }
+      }
+
+      function renderAbilityShop() {
+        shopTitle.textContent = "Ability shop";
+        shopDescription.textContent = "Buy abilities with trophies, then equip one for your next run";
+        moonRocksLabel.textContent = String(moonRocks);
+        shopBalance.textContent = `${trophies} TROPHIES · EQUIPPED: ${abilitiesById[equippedAbility]?.name.toUpperCase() || "NONE"}`;
+        shopList.replaceChildren();
+        for (const ability of abilityDefinitions) {
+          const item = document.createElement("article");
+          item.className = "shop-item";
+          const details = document.createElement("div");
+          const title = document.createElement("h3");
+          title.textContent = ability.name;
+          const description = document.createElement("p");
+          description.textContent = ability.price === 0
+            ? `${ability.description} Free to unlock.`
+            : `${ability.description} Cost: ${ability.price} trophies.`;
+          details.append(title, description);
+          const actions = document.createElement("div");
+          actions.className = "shop-actions";
+          const owned = ownedAbilities.includes(ability.id);
+          const buyButton = document.createElement("button");
+          buyButton.textContent = owned ? "Owned" : ability.price === 0 ? "Unlock free" : `Buy · ${ability.price} trophies`;
+          buyButton.disabled = owned || trophies < ability.price;
+          buyButton.addEventListener("click", () => {
+            if (ownedAbilities.includes(ability.id) || trophies < ability.price) return;
+            trophies -= ability.price;
+            ownedAbilities.push(ability.id);
+            equippedAbility = ability.id;
+            saveProgress();
+            renderAbilityShop();
+          });
+          const equipButton = document.createElement("button");
+          equipButton.className = "secondary";
+          equipButton.textContent = equippedAbility === ability.id ? "Equipped" : "Equip";
+          equipButton.disabled = !owned || equippedAbility === ability.id;
+          equipButton.addEventListener("click", () => {
+            if (!ownedAbilities.includes(ability.id)) return;
+            equippedAbility = ability.id;
+            saveProgress();
+            renderAbilityShop();
+          });
+          actions.append(buyButton, equipButton);
+          item.append(details, actions);
+          shopList.append(item);
+        }
+      }
+
       function renderShop() {
+        shopTitle.textContent = "Outpost armory";
+        shopDescription.textContent = "Weapons persist between runs";
         moonRocksLabel.textContent = String(moonRocks);
         shopBalance.textContent = `${moonRocks} MOON ROCKS · ${trophies} TROPHIES · ${activePlanet.toUpperCase()}`;
         shopList.replaceChildren();
@@ -552,7 +819,7 @@
         const perkTitle = document.createElement("h3");
         perkTitle.textContent = "Perk Reroll";
         const perkOdds = document.createElement("p");
-        perkOdds.textContent = perkDefinitions.map((perk) => `${perk.chance}% ${perk.name}: ${perk.description}`).join(" · ");
+        perkOdds.textContent = `Rerolling replaces your active perk. ${perkDefinitions.map((perk) => `${perk.chance}% ${perk.name}: ${perk.description}`).join(" · ")}`;
         const perkResult = document.createElement("p");
         perkResult.className = "perk-result";
         perkResult.textContent = perkNotice;
@@ -587,7 +854,9 @@
           travel.addEventListener("click", () => {
             if (trophies < planet.trophies) return;
             activePlanet = planet.id;
+            floor = 1;
             saveProgress();
+            updateTower();
             renderShop();
           });
           item.append(details, travel);
@@ -597,15 +866,38 @@
 
       function openShop() {
         keys.clear();
+        shopMode = "weapons";
         shopOpen = true;
         shopOverlay.hidden = false;
         renderShop();
         shopCloseButton.focus();
       }
 
+      function openSkinShop() {
+        if (mode === "playing") return;
+        keys.clear();
+        shopMode = "skins";
+        shopOpen = true;
+        shopOverlay.hidden = false;
+        renderSkinShop();
+        shopCloseButton.focus();
+      }
+
+      function openAbilityShop() {
+        if (mode === "playing") return;
+        keys.clear();
+        shopMode = "abilities";
+        shopOpen = true;
+        shopOverlay.hidden = false;
+        renderAbilityShop();
+        shopCloseButton.focus();
+      }
+
       function closeShop() {
         shopOpen = false;
         shopOverlay.hidden = true;
+        if (shopMode === "skins") renderShop();
+        if (shopMode === "abilities") renderShop();
         previousTime = 0;
       }
 
@@ -621,14 +913,27 @@
         fireCooldown = 0;
       }
 
-      function startGame(advanceFloor = false) {
+      function startGame(advanceFloor = false, selectedMode = "mission") {
         cancelAnimationFrame(animationId);
+        gameMode = selectedMode;
+        rocket.x = gameMode === "raid" ? width / 2 : 790;
+        rocket.y = gameMode === "raid" ? height / 2 : 292;
+        raidWave = gameMode === "raid" ? 1 : 0;
+        raidSpawnRemaining = gameMode === "raid" ? 5 : 0;
+        raidSpawnCooldown = 0;
+        raidBossSpawned = false;
+        abilityDurationRemaining = 0;
+        abilityCooldownRemaining = 0;
+        timeStopRemaining = 0;
+        raidBossHealth.hidden = true;
+        raidWaveDisplay.hidden = gameMode !== "raid";
+        tower.hidden = gameMode === "raid";
         if (!advanceFloor) {
           floor = 1;
           saveProgress();
         }
         refreshPerkStats();
-        player = { x: 145, y: 290 };
+        player = gameMode === "raid" ? { x: width / 2, y: height - 70 } : { x: 145, y: 290 };
         const bonusCanCount = Math.min(bonusCanSpawns.length, Math.round(initialCans.length * (fuelCanMultiplier - 1)));
         cans = [...initialCans, ...bonusCanSpawns.slice(0, bonusCanCount)].map((can) => ({ ...can, found: false }));
         ammoBoxes = initialAmmoBoxes.map((box) => ({ ...box, found: false }));
@@ -650,6 +955,7 @@
         flashlightBattery = flashlightBatteryCap;
         flashlightHeld = false;
         flashlightOn = false;
+        aimAngle = gameMode === "raid" ? -Math.PI / 2 : 0;
         fireCooldown = 0;
         reloadState = null;
         pickupMessage = "";
@@ -662,11 +968,12 @@
         shopOpen = false;
         shopOverlay.hidden = true;
         mode = "playing";
+        bossRaidButton.hidden = true;
         shopOpenButton.hidden = true;
         previousTime = 0;
         keys.clear();
         overlay.hidden = true;
-        statusText.textContent = "FUEL RUN IN PROGRESS";
+        statusText.textContent = gameMode === "raid" ? "BOSS RAID IN PROGRESS" : "FUEL RUN IN PROGRESS";
         updateTower();
         updateHud();
         animationId = requestAnimationFrame(frame);
@@ -678,16 +985,17 @@
         flashlightHeld = false;
         overlayTitle.textContent = won ? "You made it out." : reason === "rocket" ? "Rocket destroyed." : "Signal lost.";
         overlayCopy.textContent = won
-          ? `Mission complete. You earned ${100 * (planetsById[activePlanet]?.moonRockMultiplier || 1)} moon rocks for this successful launch.`
+          ? `Mission complete. You earned ${Math.floor(100 * moonRockRewardMultiplier())} moon rocks for this successful launch.`
           : reason === "rocket"
             ? `The aliens tore through the launch pad with ${loaded} of ${targetFuel} fuel cans loaded.`
             : `Only ${loaded} of ${targetFuel} fuel cans made it aboard. The launch window has closed.`;
         startButton.textContent = "Play again";
+        bossRaidButton.hidden = false;
         overlay.hidden = false;
         shopOpenButton.hidden = false;
         statusText.textContent = won ? "MISSION COMPLETE" : "MISSION FAILED";
         if (won) {
-          moonRocks += 100 * (planetsById[activePlanet]?.moonRockMultiplier || 1);
+          moonRocks += Math.floor(100 * moonRockRewardMultiplier());
           trophies += planetsById[activePlanet]?.trophyMultiplier || 1;
           saveProgress();
           renderShop();
@@ -697,6 +1005,39 @@
           saveProgress();
           updateTower();
         }
+      }
+
+      function finishBossRaid(won) {
+        mode = won ? "won" : "lost";
+        keys.clear();
+        flashlightHeld = false;
+        overlayTitle.textContent = won ? "Boss defeated!" : "Raid over";
+        overlayCopy.textContent = won
+          ? "Raid complete. You earned 5,000 moon rocks and 20 trophies."
+          : "The rocket was destroyed before the planetary boss could be defeated.";
+        startButton.textContent = "Play";
+        overlay.hidden = false;
+        bossRaidButton.hidden = false;
+        statusText.textContent = won ? "BOSS RAID COMPLETE" : "BOSS RAID FAILED";
+        raidBossHealth.hidden = true;
+        raidWaveDisplay.hidden = true;
+        if (won) {
+          moonRocks += 5000;
+          trophies += 20;
+        }
+        floor = 1;
+        saveProgress();
+        updateTower();
+        renderShop();
+      }
+
+      function activateAbility() {
+        if (mode !== "playing" || !ownedAbilities.includes(equippedAbility) || abilityCooldownRemaining > 0) return;
+        const ability = abilitiesById[equippedAbility];
+        abilityCooldownRemaining = ability.id === "time-stop" ? 20 : 15;
+        if (ability.id === "time-stop") timeStopRemaining = 15;
+        else abilityDurationRemaining = 10;
+        updateHud();
       }
 
       function updateTower() {
@@ -709,8 +1050,8 @@
 
       function updateHud() {
         const seconds = Math.ceil(timeLeft);
-        timerText.textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-        timerText.style.color = timeLeft <= 15 ? "#ff9d57" : "";
+        timerText.textContent = gameMode === "raid" ? "RAID" : `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+        timerText.style.color = gameMode === "mission" && timeLeft <= 15 ? "#ff9d57" : "";
         countText.textContent = `${String(collected).padStart(2, "0")} / ${String(targetFuel).padStart(2, "0")}`;
         [...fuelMeter.children].forEach((pip, index) => pip.classList.toggle("full", index < loaded));
 
@@ -729,12 +1070,34 @@
         staminaFill.style.width = `${Math.max(0, stamina / maxStamina * 100)}%`;
         staminaCount.textContent = `${stamina.toFixed(1)}s`;
         const closeToRocket = Math.hypot(player.x - rocket.x, player.y - rocket.y) < 112;
-        loadButton.disabled = mode !== "playing" || !closeToRocket || (!rocketReady && collected === 0);
+        loadButton.disabled = mode !== "playing" || gameMode !== "mission" || !closeToRocket || (!rocketReady && collected === 0);
         touchLoad.disabled = loadButton.disabled;
         touchShoot.disabled = mode !== "playing" || shotsInMagazine >= gun.clipSize;
         touchReload.disabled = mode !== "playing" || shotsInMagazine < gun.clipSize || reserveAmmo === 0;
+        touchAbility.disabled = mode !== "playing" || !ownedAbilities.includes(equippedAbility) || abilityCooldownRemaining > 0;
+        const activeAbilityTime = equippedAbility === "time-stop" ? timeStopRemaining : abilityDurationRemaining;
+        touchAbility.textContent = activeAbilityTime > 0
+          ? `${abilitiesById[equippedAbility]?.name} ${Math.ceil(activeAbilityTime)}s`
+          : abilityCooldownRemaining > 0
+            ? `Ability ${Math.ceil(abilityCooldownRemaining)}s`
+            : abilitiesById[equippedAbility]?.name || "Ability";
+        abilityStatus.textContent = activeAbilityTime > 0
+          ? ` · ${abilitiesById[equippedAbility].name.toUpperCase()} ${Math.ceil(activeAbilityTime)}S`
+          : abilityCooldownRemaining > 0 && equippedAbility
+            ? ` · ABILITY READY IN ${Math.ceil(abilityCooldownRemaining)}S`
+            : equippedAbility ? ` · ${abilitiesById[equippedAbility].name.toUpperCase()} READY` : "";
         loadButton.textContent = closeToRocket && collected > 0 ? `Load fuel (${collected})` : rocketReady ? "E: launch" : "Load fuel";
         touchLoad.textContent = closeToRocket && collected > 0 ? `Load (${collected})` : "Load fuel";
+        if (gameMode === "raid") {
+          raidWaveDisplay.textContent = raidBossSpawned ? "FINAL BOSS" : `WAVE ${raidWave} / 10 · ${raidSpawnRemaining} ENEMIES LEFT TO SPAWN`;
+        }
+        const raidBoss = aliens.find((alien) => alien.raidBoss);
+        raidBossHealth.hidden = gameMode !== "raid" || !raidBoss;
+        if (raidBoss) {
+          raidBossName.textContent = raidBoss.name;
+          raidBossCount.textContent = `${raidBoss.health} / ${raidBoss.maxHealth}`;
+          raidBossFill.style.width = `${Math.max(0, raidBoss.health / raidBoss.maxHealth * 100)}%`;
+        }
       }
 
       function loadFuel() {
@@ -766,10 +1129,13 @@
         const delta = previousTime ? Math.min((timestamp - previousTime) / 1000, 0.04) : 0;
         previousTime = timestamp;
         elapsed += delta;
-        timeLeft = Math.max(0, timeLeft - delta);
+        if (gameMode === "mission") timeLeft = Math.max(0, timeLeft - delta);
         fireCooldown = Math.max(0, fireCooldown - delta);
+        abilityCooldownRemaining = Math.max(0, abilityCooldownRemaining - delta);
+        abilityDurationRemaining = Math.max(0, abilityDurationRemaining - delta);
+        timeStopRemaining = Math.max(0, timeStopRemaining - delta);
         flashlightOn = flashlightHeld && flashlightBattery > 0;
-        if (flashlightOn) flashlightBattery = Math.max(0, flashlightBattery - delta);
+        if (flashlightOn) flashlightBattery = Math.max(0, flashlightBattery - delta * flashlightDrainMultiplier);
         else flashlightBattery = Math.min(flashlightBatteryCap, flashlightBattery + delta * 0.65);
         if (flashlightBattery === 0) flashlightHeld = false;
         pickupNoticeTime = Math.max(0, pickupNoticeTime - delta);
@@ -785,6 +1151,7 @@
             reloadState = null;
           }
         }
+        if (gameMode === "raid") updateBossRaid(delta);
         updateAliens(delta);
         if (keys.has("fire") && !reloadState && fireCooldown === 0) {
           shootRaygun();
@@ -802,8 +1169,10 @@
         collectCans();
         updateHud();
         draw();
-        if (rocketIntegrity <= 0) finishGame(false, "rocket");
-        else if (timeLeft <= 0) finishGame(false, "time");
+        if (mode !== "playing") return;
+        if (gameMode === "raid" && rocketIntegrity <= 0) finishBossRaid(false);
+        else if (gameMode === "mission" && rocketIntegrity <= 0) finishGame(false, "rocket");
+        else if (gameMode === "mission" && timeLeft <= 0) finishGame(false, "time");
         else animationId = requestAnimationFrame(frame);
       }
 
@@ -847,22 +1216,35 @@
       }
 
       function updateAliens(delta) {
-        if (floor >= 4 && !bossSpawned && elapsed >= 20) {
-          spawnBoss();
-          bossSpawned = true;
-        }
-        if (!bigAlienSpawned && elapsed >= (floor >= 2 ? 12 : 18)) {
-          spawnAlien(true);
-          bigAlienSpawned = true;
-        }
-        if (elapsed >= nextAlienSpawn) {
-          if (aliens.length < 5) {
-            spawnAlien(floor >= 3);
-            nextAlienSpawn = elapsed + (floor >= 2 ? 3 : 4.5);
-          } else nextAlienSpawn = elapsed + 1.5;
+        if (timeStopRemaining > 0) return;
+        if (gameMode === "mission") {
+          if (floor >= 4 && !bossSpawned && elapsed >= 20) {
+            spawnBoss();
+            bossSpawned = true;
+          }
+          if (!bigAlienSpawned && elapsed >= (floor >= 2 ? 12 : 18)) {
+            spawnAlien(true);
+            bigAlienSpawned = true;
+          }
+          if (elapsed >= nextAlienSpawn) {
+            if (aliens.length < 5) {
+              spawnAlien(floor >= 3);
+              nextAlienSpawn = elapsed + (floor >= 2 ? 3 : 4.5);
+            } else nextAlienSpawn = elapsed + 1.5;
+          }
         }
         for (const alien of aliens) {
           alien.hitFlash = Math.max(0, alien.hitFlash - delta);
+          if (alien.burnRemaining > 0) {
+            alien.burnRemaining = Math.max(0, alien.burnRemaining - delta);
+            alien.burnTick -= delta;
+            if (alien.burnTick <= 0 && alien.health > 0) {
+              damageAlien(alien, equippedGun, 0.5, false);
+              alien.burnTick += 0.5;
+            }
+          }
+          alien.frozenRemaining = Math.max(0, (alien.frozenRemaining || 0) - delta);
+          if (alien.health <= 0 || alien.frozenRemaining > 0) continue;
           const dx = rocket.x - alien.x;
           const dy = rocket.y - alien.y;
           const distance = Math.hypot(dx, dy) || 1;
@@ -872,9 +1254,32 @@
           } else {
             alien.attackTimer -= delta;
             if (alien.attackTimer <= 0) {
-              rocketIntegrity = Math.max(0, rocketIntegrity - (alien.boss ? 30 : 1));
+              const damage = alien.boss ? 30 : alien.heavy ? 7 : alien.big ? 5 : 3;
+              rocketIntegrity = Math.max(0, rocketIntegrity - damage);
               alien.attackTimer = alien.boss ? 4.5 : 2.6;
             }
+          }
+        }
+        aliens = aliens.filter((alien) => alien.health > 0);
+      }
+
+      function updateBossRaid(delta) {
+        if (timeStopRemaining > 0) return;
+        raidSpawnCooldown = Math.max(0, raidSpawnCooldown - delta);
+        if (raidSpawnRemaining > 0 && raidSpawnCooldown === 0) {
+          spawnAlien(raidWave >= 3 && Math.random() < 0.2);
+          raidSpawnRemaining -= 1;
+          raidSpawnCooldown = 0.45;
+          return;
+        }
+        if (raidSpawnRemaining === 0 && aliens.length === 0) {
+          if (raidWave < 10) {
+            raidWave += 1;
+            raidSpawnRemaining = raidWave * 5;
+            raidSpawnCooldown = 0.8;
+          } else if (!raidBossSpawned) {
+            spawnRaidBoss();
+            raidBossSpawned = true;
           }
         }
       }
@@ -882,7 +1287,7 @@
       function spawnAlien(big) {
         const entrances = [[30, 34], [width - 30, 34], [30, height - 34], [width - 30, height - 34]];
         const entrance = entrances[Math.floor(Math.random() * entrances.length)];
-        const heavy = floor >= 2 && !big;
+        const heavy = gameMode === "raid" ? raidWave >= 3 && !big : floor >= 2 && !big;
         const larger = floor >= 3 && big && !bigAlienSpawned;
         const health = larger ? 5 : heavy ? 7 : big ? 5 : 2;
         aliens.push({ x: entrance[0], y: entrance[1], health, maxHealth: health, big: big || larger, heavy, larger, attackTimer: 0.8, hitFlash: 0, hitsByGun: {}, damageRatio: 0 });
@@ -892,12 +1297,67 @@
         aliens.push({ x: width / 2, y: 38, health: 30, maxHealth: 30, big: true, boss: true, heavy: false, larger: true, attackTimer: 2, hitFlash: 0, hitsByGun: {}, damageRatio: 0 });
       }
 
+      function spawnRaidBoss() {
+        const bossByPlanet = {
+          earth: { name: "Earth: The Crimson Devourer", color: "#d3343e", headColor: "#ff8790" },
+          mars: { name: "Mars: The Solar Warden", color: "#f07832", headColor: "#ffc06c" },
+          saturn: { name: "Saturn: The Ringbreaker", color: "#b58ae8", headColor: "#e2c6ff" }
+        };
+        const boss = bossByPlanet[activePlanet] || bossByPlanet.earth;
+        aliens.push({
+          x: width / 2,
+          y: 42,
+          health: 1000,
+          maxHealth: 1000,
+          big: true,
+          boss: true,
+          raidBoss: true,
+          name: boss.name,
+          bossColor: boss.color,
+          bossHeadColor: boss.headColor,
+          heavy: false,
+          larger: true,
+          attackTimer: 2,
+          hitFlash: 0,
+          hitsByGun: {},
+          damageRatio: 0
+        });
+      }
+
       function shootRaygun() {
         const gun = gunsById[equippedGun];
         if (mode !== "playing" || shotsInMagazine >= gun.clipSize) return;
         shotsInMagazine += 1;
         const directionX = Math.cos(aimAngle);
         const directionY = Math.sin(aimAngle);
+        if (gun.id === "laser" || gun.id === "railgun") {
+          const x1 = player.x + directionX * 16;
+          const y1 = player.y + directionY * 16;
+          const edgeDistances = [];
+          if (directionX > 0) edgeDistances.push((width - x1) / directionX);
+          else if (directionX < 0) edgeDistances.push(-x1 / directionX);
+          if (directionY > 0) edgeDistances.push((height - y1) / directionY);
+          else if (directionY < 0) edgeDistances.push(-y1 / directionY);
+          const beamLength = Math.min(...edgeDistances.filter((distance) => distance >= 0));
+          const x2 = x1 + directionX * beamLength;
+          const y2 = y1 + directionY * beamLength;
+          laserBeams.push({ x1, y1, x2, y2, life: 0.11, color: gun.id === "laser" ? "#ff3030" : "#fff0c2" });
+
+          const beamX = x2 - x1;
+          const beamY = y2 - y1;
+          const beamLengthSquared = beamX * beamX + beamY * beamY;
+          for (const alien of aliens) {
+            const projection = Math.max(0, Math.min(1, ((alien.x - x1) * beamX + (alien.y - y1) * beamY) / beamLengthSquared));
+            const closestX = x1 + projection * beamX;
+            const closestY = y1 + projection * beamY;
+            if (Math.hypot(alien.x - closestX, alien.y - closestY) < (alien.big ? 58 : 25)) {
+              damageAlien(alien, gun.id);
+            }
+          }
+          aliens = aliens.filter((alien) => alien.health > 0);
+          return;
+        }
+
         bullets.push({
           x: player.x + directionX * 18,
           y: player.y + directionY * 18,
@@ -909,27 +1369,36 @@
           gunId: gun.id,
           life: 1.15
         });
-        if (gun.id === "laser") {
-          laserBeams.push({
-            x1: player.x + directionX * 16,
-            y1: player.y + directionY * 16,
-            x2: player.x + directionX * 190,
-            y2: player.y + directionY * 190,
-            life: 0.11
-          });
-        }
       }
 
-      function damageAlien(alien, gunId) {
+      function igniteAlien(alien) {
+        alien.burnRemaining = Math.max(alien.burnRemaining || 0, 3);
+        alien.burnTick = Math.min(alien.burnTick || 0.5, 0.5);
+      }
+
+      function damageAlien(alien, gunId, damageMultiplier = 1, applyAbilityEffects = true) {
         if (alien.health <= 0) return;
+        const flaming = equippedAbility === "flaming" && abilityDurationRemaining > 0;
+        const appliedDamage = damageMultiplier * (flaming && applyAbilityEffects ? 1.35 : 1);
+        if (alien.raidBoss) {
+          const perkDamageMultiplier = ownedPerks.includes("triple") ? 3 : 1;
+          alien.health = Math.max(0, alien.health - appliedDamage * perkDamageMultiplier);
+          alien.damageRatio = 1 - alien.health / alien.maxHealth;
+          alien.hitFlash = 0.16;
+          if (flaming && applyAbilityEffects) igniteAlien(alien);
+          if (alien.health === 0) finishBossRaid(true);
+          return;
+        }
         const gun = gunsById[gunId];
-        alien.hitsByGun[gunId] = (alien.hitsByGun[gunId] || 0) + 1;
+        alien.hitsByGun[gunId] = (alien.hitsByGun[gunId] || 0) + appliedDamage;
         const baseRequiredHits = gun.oneShot ? 1 : alien.boss ? 30 : alien.heavy ? 7 : alien.larger || alien.big ? gun.hitsBig : gun.hitsSmall;
         const requiredHits = Math.max(1, Math.ceil(baseRequiredHits / (ownedPerks.includes("triple") ? 3 : 1)));
         const hits = alien.hitsByGun[gunId];
         alien.damageRatio = Math.max(alien.damageRatio, Math.min(1, hits / requiredHits));
         if (hits >= requiredHits) alien.health = 0;
         alien.hitFlash = 0.16;
+        if (applyAbilityEffects && equippedAbility === "freezing" && abilityDurationRemaining > 0) alien.frozenRemaining = 2;
+        if (flaming && applyAbilityEffects) igniteAlien(alien);
       }
 
       function updateBullets(delta) {
@@ -955,21 +1424,25 @@
       function reloadRaygun() {
         const gun = gunsById[equippedGun];
         if (mode === "playing" && !reloadState && shotsInMagazine >= gun.clipSize && reserveAmmo > 0) {
-          reloadState = { weaponId: equippedGun, elapsed: 0, duration: gun.reloadDuration };
+          reloadState = {
+            weaponId: equippedGun,
+            elapsed: 0,
+            duration: gun.reloadDuration * (ownedPerks.includes("triple") ? 0.25 : 1)
+          };
           keys.delete("fire");
           updateHud();
         }
       }
 
       function interact() {
-        if (mode !== "playing") return;
+        if (mode !== "playing" || gameMode === "raid") return;
         if (rocketReady && Math.hypot(player.x - rocket.x, player.y - rocket.y) < 112) {
           finishGame(true);
           return;
         }
         if (ladderUnlocked && Math.hypot(player.x - ladder.x, player.y - ladder.y) < 70) {
           const planet = planetsById[activePlanet];
-          moonRocks += floor * 100 * (planet?.moonRockMultiplier || 1);
+          moonRocks += Math.floor(floor * 100 * moonRockRewardMultiplier());
           trophies += planet?.trophyMultiplier || 1;
           floor += 1;
           saveProgress();
@@ -1021,8 +1494,10 @@
         ctx.setLineDash([]);
 
         for (const [x, y, radius] of rocks) drawRock(x, y, radius);
-        for (const cannon of cannons) drawCannon(cannon);
-        drawLadder();
+        if (gameMode !== "raid") {
+          for (const cannon of cannons) drawCannon(cannon);
+          drawLadder();
+        }
         drawRocket();
         for (const can of cans) {
           if (!can.found && flashlightOn && Math.hypot(player.x - can.x, player.y - can.y) < 255) drawCan(can.x, can.y);
@@ -1085,15 +1560,16 @@
         for (const beam of laserBeams) {
           const opacity = Math.min(1, beam.life * 10);
           ctx.save();
-          ctx.strokeStyle = `rgba(255, 48, 48, ${opacity})`;
-          ctx.shadowColor = "#ff2020";
+          ctx.globalAlpha = opacity;
+          ctx.strokeStyle = beam.color || "#ff3030";
+          ctx.shadowColor = beam.color || "#ff2020";
           ctx.shadowBlur = 12;
           ctx.lineWidth = 5;
           ctx.beginPath();
           ctx.moveTo(beam.x1, beam.y1);
           ctx.lineTo(beam.x2, beam.y2);
           ctx.stroke();
-          ctx.strokeStyle = `rgba(255, 205, 190, ${opacity})`;
+          ctx.strokeStyle = "#fff0c2";
           ctx.shadowBlur = 0;
           ctx.lineWidth = 1;
           ctx.stroke();
@@ -1223,11 +1699,18 @@
         ctx.translate(alien.x, alien.y);
         const alienScale = alien.boss ? 2.2 : alien.larger ? 1.8 : alien.big ? 1.55 : 1;
         ctx.scale(alienScale, alienScale);
-        ctx.fillStyle = alien.hitFlash ? "#fff0c2" : alien.boss ? "#d55c83" : alien.larger ? "#9c75d3" : alien.big ? "#52a9c7" : alien.heavy ? "#c7794f" : "#bd6b72";
+        if (alien.burnRemaining > 0) {
+          ctx.strokeStyle = "#ff8a3d";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, 24, elapsed * 5, elapsed * 5 + Math.PI * 1.6);
+          ctx.stroke();
+        }
+        ctx.fillStyle = alien.hitFlash ? "#fff0c2" : alien.bossColor || (alien.boss ? "#d55c83" : alien.larger ? "#9c75d3" : alien.big ? "#52a9c7" : alien.heavy ? "#c7794f" : "#bd6b72");
         ctx.beginPath();
         ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = alien.boss ? "#f1a4bc" : alien.larger ? "#c4a8ef" : alien.big ? "#82d4df" : alien.heavy ? "#e5ae77" : "#e6b98e";
+        ctx.fillStyle = alien.hitFlash ? "#fff0c2" : alien.bossHeadColor || (alien.boss ? "#f1a4bc" : alien.larger ? "#c4a8ef" : alien.big ? "#82d4df" : alien.heavy ? "#e5ae77" : "#e6b98e");
         ctx.beginPath();
         ctx.ellipse(0, -8, 14, 12, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -1236,6 +1719,17 @@
         ctx.ellipse(-5, -9, 3, 5, -0.2, 0, Math.PI * 2);
         ctx.ellipse(5, -9, 3, 5, 0.2, 0, Math.PI * 2);
         ctx.fill();
+        if (alien.frozenRemaining > 0 || timeStopRemaining > 0) {
+          ctx.fillStyle = "#a8efffbb";
+          ctx.fillRect(-22, -25, 44, 50);
+          ctx.strokeStyle = "#e5fbff";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(-22, -25, 44, 50);
+          ctx.beginPath();
+          ctx.moveTo(-15, -17); ctx.lineTo(15, 17);
+          ctx.moveTo(15, -17); ctx.lineTo(-15, 17);
+          ctx.stroke();
+        }
         ctx.fillStyle = alien.boss ? "#fff0c2" : alien.larger ? "#f0dd7c" : alien.big ? "#f2cb61" : "#ff9d57";
         ctx.fillRect(-8, -24, 4, 8);
         ctx.fillRect(4, -24, 4, 8);
@@ -1361,10 +1855,12 @@
         ctx.beginPath();
         ctx.ellipse(0, 19, 19, 8, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "#e9e4d3";
+        const skin = skinsById[equippedSkin];
+        const suitColor = equippedSkin === "rainbow" ? `hsl(${Math.floor((performance.now() / 12) % 360)} 85% 65%)` : skin.color;
+        ctx.fillStyle = suitColor;
         ctx.fillRect(-11, 4 + step, 8, 14);
         ctx.fillRect(3, 4 - step, 8, 14);
-        ctx.fillStyle = "#c6c3b1";
+        ctx.fillStyle = suitColor;
         ctx.fillRect(-13, -10, 26, 21);
         ctx.fillStyle = "#ff9d57";
         ctx.fillRect(-15, -6, 5, 13);
@@ -1426,7 +1922,7 @@
           ctx.fillRect(16, -2, 3, 4);
         }
         ctx.restore();
-        ctx.fillStyle = "#e9e4d3";
+        ctx.fillStyle = suitColor;
         ctx.beginPath();
         ctx.arc(0, -14, 15, 0, Math.PI * 2);
         ctx.fill();
@@ -1465,8 +1961,18 @@
         }
         pressKey(event.key);
         if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) event.preventDefault();
-        if (event.key.toLowerCase() === "e") interact();
+        if (event.key.toLowerCase() === "e" && !event.repeat) {
+          const nearRocket = Math.hypot(player.x - rocket.x, player.y - rocket.y) < 112;
+          const nearLadder = ladderUnlocked && Math.hypot(player.x - ladder.x, player.y - ladder.y) < 70;
+          const nearCannon = cannons.some((cannon) => Math.hypot(player.x - cannon.x, player.y - cannon.y) < 64);
+          const canInteractHere = gameMode === "mission" && (
+            (nearRocket && (rocketReady || collected > 0)) || nearLadder || nearCannon
+          );
+          if (equippedAbility === "time-stop" && !canInteractHere) activateAbility();
+          else interact();
+        }
         if (event.key.toLowerCase() === "r") reloadRaygun();
+        if (event.key.toLowerCase() === "q" && !event.repeat) activateAbility();
         if (event.key.toLowerCase() === "f") flashlightHeld = true;
       });
       window.addEventListener("keyup", (event) => releaseKey(event.key));
@@ -1484,13 +1990,26 @@
         if (event.button === 2) flashlightHeld = false;
       });
       canvas.addEventListener("contextmenu", (event) => event.preventDefault());
-      startButton.addEventListener("click", startGame);
+      startButton.addEventListener("click", () => startGame(false));
+      tutorialDismissButton.addEventListener("click", () => {
+        try {
+          localStorage.setItem("lastlight-tutorial-dismissed", "true");
+          tutorial.hidden = true;
+        } catch (error) {
+          console.error("Could not save the field guide preference.", error);
+          overlayCopy.textContent = "Could not save your field guide preference. Please check browser storage permissions and try again.";
+        }
+      });
+      bossRaidButton.addEventListener("click", () => startGame(false, "raid"));
+      skinShopButton.addEventListener("click", openSkinShop);
+      abilityShopButton.addEventListener("click", openAbilityShop);
       shopOpenButton.addEventListener("click", openShop);
       shopCloseButton.addEventListener("click", closeShop);
       shopOverlay.addEventListener("click", (event) => { if (event.target === shopOverlay) closeShop(); });
       loadButton.addEventListener("click", interact);
       touchLoad.addEventListener("click", interact);
       touchReload.addEventListener("click", reloadRaygun);
+      touchAbility.addEventListener("click", activateAbility);
       touchFlashlight.addEventListener("pointerdown", (event) => { event.preventDefault(); flashlightHeld = true; touchFlashlight.setPointerCapture(event.pointerId); });
       touchFlashlight.addEventListener("pointerup", () => { flashlightHeld = false; });
       touchFlashlight.addEventListener("pointercancel", () => { flashlightHeld = false; });
@@ -1508,6 +2027,7 @@
         button.addEventListener("lostpointercapture", () => keys.delete(key));
       });
 
+      loadMissionData();
       renderShop();
       updateHud();
       draw();
