@@ -368,6 +368,24 @@
       const abilityStatus = document.querySelector("#ability-status");
       const width = canvas.width;
       const height = canvas.height;
+      const menuClickSound = new Audio("./minecraft_click.mp3");
+      const menuClickSoundStart = 0.5;
+      menuClickSound.preload = "auto";
+      menuClickSound.load();
+      const victorySound = new Audio("./crowd_small_chil_ec049202_9klCwl6.mp3");
+      victorySound.preload = "auto";
+      victorySound.load();
+      const finalFloorSound = new Audio("./here-i-come-san-francisco.mp3");
+      finalFloorSound.preload = "auto";
+      finalFloorSound.load();
+      const timeStopSound = new Audio("./timestop.mp3");
+      timeStopSound.preload = "auto";
+      timeStopSound.load();
+      const bossRaidTheme = new Audio("./giornos-theme-but-only-the-best-part-is-in_vwd15lya_lyb0-online-audio-converter.mp3");
+      bossRaidTheme.preload = "auto";
+      bossRaidTheme.loop = true;
+      bossRaidTheme.load();
+      let timeStopAudioContext;
       const darknessCanvas = document.createElement("canvas");
       darknessCanvas.width = width;
       darknessCanvas.height = height;
@@ -916,6 +934,8 @@
       function startGame(advanceFloor = false, selectedMode = "mission") {
         cancelAnimationFrame(animationId);
         gameMode = selectedMode;
+        if (gameMode === "raid") prepareBossRaidTheme();
+        else stopBossRaidTheme();
         rocket.x = gameMode === "raid" ? width / 2 : 790;
         rocket.y = gameMode === "raid" ? height / 2 : 292;
         raidWave = gameMode === "raid" ? 1 : 0;
@@ -983,6 +1003,7 @@
         mode = won ? "won" : "lost";
         keys.clear();
         flashlightHeld = false;
+        if (won && gameMode === "mission" && floor === 5) playFinalFloorSound();
         overlayTitle.textContent = won ? "You made it out." : reason === "rocket" ? "Rocket destroyed." : "Signal lost.";
         overlayCopy.textContent = won
           ? `Mission complete. You earned ${Math.floor(100 * moonRockRewardMultiplier())} moon rocks for this successful launch.`
@@ -1008,9 +1029,11 @@
       }
 
       function finishBossRaid(won) {
+        stopBossRaidTheme();
         mode = won ? "won" : "lost";
         keys.clear();
         flashlightHeld = false;
+        if (won) playVictorySound();
         overlayTitle.textContent = won ? "Boss defeated!" : "Raid over";
         overlayCopy.textContent = won
           ? "Raid complete. You earned 5,000 moon rocks and 20 trophies."
@@ -1035,8 +1058,10 @@
         if (mode !== "playing" || !ownedAbilities.includes(equippedAbility) || abilityCooldownRemaining > 0) return;
         const ability = abilitiesById[equippedAbility];
         abilityCooldownRemaining = ability.id === "time-stop" ? 20 : 15;
-        if (ability.id === "time-stop") timeStopRemaining = 15;
-        else abilityDurationRemaining = 10;
+        if (ability.id === "time-stop") {
+          timeStopRemaining = 15;
+          playTimeStopSound();
+        } else abilityDurationRemaining = 10;
         updateHud();
       }
 
@@ -1046,6 +1071,89 @@
           marker.classList.toggle("current", markerFloor === floor);
           marker.classList.toggle("complete", markerFloor < floor);
         });
+      }
+
+      function playMenuClickSound() {
+        menuClickSound.currentTime = menuClickSoundStart;
+        menuClickSound.play().catch((error) => {
+          console.error("Could not play minecraft_click.mp3.", error);
+        });
+      }
+
+      function playVictorySound() {
+        victorySound.currentTime = 0;
+        victorySound.play().catch((error) => {
+          console.error("Could not play crowd_small_chil_ec049202_9klCwl6.mp3.", error);
+        });
+      }
+
+      function playFinalFloorSound() {
+        finalFloorSound.currentTime = 0;
+        finalFloorSound.play().catch((error) => {
+          console.error("Could not play here-i-come-san-francisco.mp3.", error);
+        });
+      }
+
+      function prepareBossRaidTheme() {
+        bossRaidTheme.pause();
+        bossRaidTheme.currentTime = 0;
+        bossRaidTheme.muted = true;
+        bossRaidTheme.play().catch((error) => {
+          console.error("Could not prepare the boss raid theme.", error);
+        });
+      }
+
+      function startBossRaidTheme() {
+        bossRaidTheme.currentTime = 0;
+        bossRaidTheme.muted = false;
+        if (bossRaidTheme.paused) {
+          bossRaidTheme.play().catch((error) => {
+            console.error("Could not play the boss raid theme.", error);
+          });
+        }
+      }
+
+      function stopBossRaidTheme() {
+        bossRaidTheme.pause();
+        bossRaidTheme.muted = false;
+        bossRaidTheme.currentTime = 0;
+      }
+
+      function playTimeStopSound() {
+        if (timeStopSound.error || timeStopSound.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+          playTimeStopFallback();
+          return;
+        }
+        timeStopSound.currentTime = 0;
+        timeStopSound.play().catch((error) => {
+          console.error("Could not play timestop.mp3.", error);
+          playTimeStopFallback();
+        });
+      }
+
+      function playTimeStopFallback() {
+        const AudioContextClass = window.AudioContext;
+        if (!AudioContextClass) {
+          console.error("Could not play timestop.mp3, and Web Audio is unavailable.");
+          return;
+        }
+        timeStopAudioContext ||= new AudioContextClass();
+        timeStopAudioContext.resume().catch((error) => {
+          console.error("Could not start Time Stop audio.", error);
+        });
+        const now = timeStopAudioContext.currentTime;
+        const oscillator = timeStopAudioContext.createOscillator();
+        const volume = timeStopAudioContext.createGain();
+        oscillator.type = "sawtooth";
+        oscillator.frequency.setValueAtTime(660, now);
+        oscillator.frequency.exponentialRampToValueAtTime(90, now + 0.2);
+        volume.gain.setValueAtTime(0.0001, now);
+        volume.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
+        volume.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+        oscillator.connect(volume);
+        volume.connect(timeStopAudioContext.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.28);
       }
 
       function updateHud() {
@@ -1322,6 +1430,7 @@
           hitsByGun: {},
           damageRatio: 0
         });
+        startBossRaidTheme();
       }
 
       function shootRaygun() {
@@ -2001,9 +2110,19 @@
         }
       });
       bossRaidButton.addEventListener("click", () => startGame(false, "raid"));
-      skinShopButton.addEventListener("click", openSkinShop);
-      abilityShopButton.addEventListener("click", openAbilityShop);
+      skinShopButton.addEventListener("click", () => {
+        openSkinShop();
+      });
+      abilityShopButton.addEventListener("click", () => {
+        openAbilityShop();
+      });
       shopOpenButton.addEventListener("click", openShop);
+      document.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest("button");
+        if (!button || button.id === "touch-shoot") return;
+        playMenuClickSound();
+      }, true);
       shopCloseButton.addEventListener("click", closeShop);
       shopOverlay.addEventListener("click", (event) => { if (event.target === shopOverlay) closeShop(); });
       loadButton.addEventListener("click", interact);
